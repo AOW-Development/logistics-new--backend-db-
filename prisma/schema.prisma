@@ -1,0 +1,96 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+  // For TiDB Cloud, you might need to add this flag
+  relationMode = "prisma"
+}
+model Admin {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admins")
+}
+
+model Customer {
+  id          Int       @id @default(autoincrement())
+  name        String
+  address     String
+  phone       String
+  isPublished Boolean   @default(true)
+  publishedAt DateTime? @default(now())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  shipments   Shipment[]
+
+  @@map("customers")
+  @@index([address])
+  @@index([isPublished])
+}
+
+model Shipment {
+  id                Int            @id @default(autoincrement())
+  orderId           String         
+  trackingId        String        
+  orderDate         DateTime       @default(now())
+  estimatedDelivery DateTime?
+  order_status      OrderStatus    @default(yet_to_be_picked)
+  originAddress     String?
+  isPublished       Boolean        @default(true)
+  publishedAt       DateTime?      @default(now())
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  customerId        Int
+  customer          Customer       @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  statusUpdates     StatusUpdate[]
+
+  @@map("shipments")
+  @@index([trackingId])
+  @@index([order_status])
+  @@index([customerId])
+  @@index([isPublished])
+  @@index([orderDate])
+}
+
+model StatusUpdate {
+  id                Int         @id @default(autoincrement())
+  order_status      OrderStatus
+  timestamp         DateTime    @default(now())
+  details           String?
+  location          String?
+  status_update_ord Int
+  isPublished       Boolean     @default(true)
+  publishedAt       DateTime?   @default(now())
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  shipmentId        Int
+  shipment          Shipment    @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  @@map("status_updates")
+  @@index([shipmentId, status_update_ord])
+  @@index([timestamp])
+}
+
+enum OrderStatus {
+  yet_to_be_picked
+  picked_up
+  intransit
+  on_the_way
+  terminal_shipping
+  delivered
+  delivery_rejected
+  onhold
+  returned
+  cancelled            // 👈 add this
+  out_for_delivery
+}

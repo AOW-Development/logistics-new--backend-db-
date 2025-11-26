@@ -1,0 +1,48 @@
+{
+  "name": "aow-logistics-backend",
+  "version": "1.0.0",
+  "description": "Shipping management system with Node.js and Express",
+  "homepage": "https://github.com/Rohanaow123/AOW-Logistic#readme",
+  "bugs": {
+    "url": "https://github.com/Rohanaow123/AOW-Logistic/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rohanaow123/AOW-Logistic.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "dev": "nodemon app.js",
+    "start": "node app.js",
+    "prisma:generate": "prisma generate",
+    "prisma:dbpush": "prisma db push",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio",
+    "init:db": "node scripts/initDB.js",
+    "setup": "npm run prisma:generate && npm run prisma:dbpush && npm run init:db"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.15.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "csv-parse": "^5.4.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "helmet": "^7.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.19.0",
+    "mongoose": "^7.5.0",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "prisma": "^6.15.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  }
+}
