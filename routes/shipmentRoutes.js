@@ -3,6 +3,12 @@ const router = express.Router();
 const shipmentController = require("../Controllers/shipmentController");
 const { authenticateToken } = require("../middleware/auth");
 
+// ==========================
+// TRACKING ----NO AUTH
+// ==========================
+router.get("/track/:trackingId", shipmentController.trackShipment);
+router.get("/by-tracking/:trackingId", shipmentController.trackShipment);
+
 // Apply authentication to all routes
 router.use(authenticateToken);
 
@@ -32,12 +38,6 @@ router.put(
   "/update-all-status-updates",
   shipmentController.updateAllStatusUpdates
 );
-
-// ==========================
-// TRACKING
-// ==========================
-router.get("/track/:trackingId", shipmentController.trackShipment);
-router.get("/by-tracking/:trackingId", shipmentController.trackShipment);
 
 // ==========================
 // STATUS
