@@ -1,7 +1,6 @@
 const prisma = require("../Config/database");
 
 // Get all shipments with pagination, search, and filtering
-// Get all shipments with pagination, search, and filtering
 const getShipments = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -82,7 +81,6 @@ const getShipments = async (req, res) => {
   }
 };
 
-
 // In your shipmentController.js
 
 // Get shipment details with full tracking history
@@ -112,24 +110,26 @@ const getShipmentDetails = async (req, res) => {
       order_status: shipment.order_status,
       status: shipment.order_status, // Add this for frontend compatibility
       originAddress: shipment.originAddress,
-      
+
       // Customer data in expected format
-      customer: shipment.customer ? {
-        id: shipment.customer.id,
-        name: shipment.customer.name,
-        address: shipment.customer.address,
-        phone: shipment.customer.phone
-      } : null,
-      
+      customer: shipment.customer
+        ? {
+            id: shipment.customer.id,
+            name: shipment.customer.name,
+            address: shipment.customer.address,
+            phone: shipment.customer.phone,
+          }
+        : null,
+
       // Status updates in expected format
-      statusUpdates: shipment.statusUpdates.map(update => ({
+      statusUpdates: shipment.statusUpdates.map((update) => ({
         id: update.id,
         status: update.order_status,
         details: update.details,
         location: update.location,
         timestamp: update.timestamp,
-        createdAt: update.timestamp // For sorting
-      }))
+        createdAt: update.timestamp, // For sorting
+      })),
     };
 
     res.json(formattedShipment);
@@ -145,14 +145,14 @@ const trackShipment = async (req, res) => {
   try {
     const trackingId = req.params.trackingId.trim();
 
-    console.log('Tracking request for:', trackingId);
+    console.log("Tracking request for:", trackingId);
 
     const shipment = await prisma.shipment.findFirst({
       where: {
         OR: [
-          { trackingId: { equals: trackingId } },       // exact match
-          { trackingId: { contains: trackingId } },     // partial match
-          { trackingId: { contains: trackingId.replace(/\D/g, '') } } // digits only
+          { trackingId: { equals: trackingId } }, // exact match
+          { trackingId: { contains: trackingId } }, // partial match
+          { trackingId: { contains: trackingId.replace(/\D/g, "") } }, // digits only
         ],
         isPublished: true,
       },
@@ -174,25 +174,27 @@ const trackShipment = async (req, res) => {
       trackingId: shipment.trackingId,
       status: shipment.order_status,
       estimatedDelivery: shipment.estimatedDelivery,
-      customer: shipment.customer ? {
-        id: shipment.customer.id,
-        name: shipment.customer.name,
-        address: shipment.customer.address,
-        phone: shipment.customer.phone
-      } : null,
-      statusUpdates: shipment.statusUpdates.map(update => ({
+      customer: shipment.customer
+        ? {
+            id: shipment.customer.id,
+            name: shipment.customer.name,
+            address: shipment.customer.address,
+            phone: shipment.customer.phone,
+          }
+        : null,
+      statusUpdates: shipment.statusUpdates.map((update) => ({
         id: update.id,
         status: update.order_status,
         details: update.details,
         location: update.location,
         timestamp: update.timestamp,
-        createdAt: update.timestamp
-      }))
+        createdAt: update.timestamp,
+      })),
     };
 
     res.json(trackingInfo);
   } catch (error) {
-    console.error('Error in trackShipment:', error);
+    console.error("Error in trackShipment:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -207,15 +209,15 @@ const debugTrackingIds = async (req, res) => {
         id: true,
         trackingId: true,
         orderId: true,
-        order_status: true
+        order_status: true,
       },
       where: { isPublished: true },
-      orderBy: { trackingId: 'asc' }
+      orderBy: { trackingId: "asc" },
     });
-    
+
     res.json({
       total: shipments.length,
-      shipments: shipments
+      shipments: shipments,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -229,19 +231,19 @@ const searchTrackingId = async (req, res) => {
     const shipments = await prisma.shipment.findMany({
       where: {
         trackingId: { contains: pattern },
-        isPublished: true
+        isPublished: true,
       },
       select: {
         id: true,
         trackingId: true,
         orderId: true,
-        order_status: true
-      }
+        order_status: true,
+      },
     });
-    
+
     res.json({
       pattern: pattern,
-      results: shipments
+      results: shipments,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -331,7 +333,7 @@ const updateStatus = async (req, res) => {
 //       return res.status(404).json({ error: "Shipment not found" });
 //     }
 
-    // Format for public tracking
+// Format for public tracking
 //     const trackingInfo = {
 //       orderId: shipment.orderId,
 //       trackingId: shipment.trackingId,
@@ -474,10 +476,10 @@ const findShipmentByTracking = async (req, res) => {
     const { trackingId } = req.params;
 
     const strategies = [
-      { trackingId: { equals: trackingId } },               // exact
-      { trackingId: { equals: trackingId.trim() } },        // trimmed
-      { trackingId: { contains: trackingId } },             // partial
-      { trackingId: { contains: trackingId.replace(/\D/g, '') } } // numbers only
+      { trackingId: { equals: trackingId } }, // exact
+      { trackingId: { equals: trackingId.trim() } }, // trimmed
+      { trackingId: { contains: trackingId } }, // partial
+      { trackingId: { contains: trackingId.replace(/\D/g, "") } }, // numbers only
     ];
 
     for (const whereClause of strategies) {
@@ -499,7 +501,7 @@ const findShipmentByTracking = async (req, res) => {
           status: shipment.order_status,
           estimatedDelivery: shipment.estimatedDelivery,
           customer: shipment.customer,
-          statusUpdates: shipment.statusUpdates
+          statusUpdates: shipment.statusUpdates,
         });
       }
     }
@@ -518,7 +520,7 @@ const getDashboardData = async (req, res) => {
       where: { order_status: "delivered" },
     });
     const inTransitCount = await prisma.shipment.count({
-      where: { order_status: "in_transit" },
+      where: { order_status: "intransit" },
     });
     const pendingCount = await prisma.shipment.count({
       where: { NOT: { order_status: "delivered" } },
@@ -805,7 +807,7 @@ const getStatusOptions = async (req, res) => {
     const statusOptions = [
       { value: "yet_to_be_picked", label: "Yet to be Picked", icon: "⏳" },
       { value: "picked_up", label: "Picked Up", icon: "📦" },
-      { value: "in_transit", label: "In Transit", icon: "🚚" },
+      { value: "intransit", label: "In Transit", icon: "🚚" },
       { value: "on_the_way", label: "On the Way", icon: "🛣️" },
       { value: "out_for_delivery", label: "Out for Delivery", icon: "📭" },
       { value: "delivered", label: "Delivered", icon: "✅" },
@@ -852,4 +854,3 @@ module.exports = {
   debugTrackingIds,
   searchTrackingId,
 };
-
