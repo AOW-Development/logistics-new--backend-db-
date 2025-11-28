@@ -1,4 +1,4 @@
-const prisma = require('../Config/database');
+const prisma = require("../Config/database");
 
 // Get all customers with pagination
 const getCustomers = async (req, res) => {
@@ -14,18 +14,18 @@ const getCustomers = async (req, res) => {
           shipments: {
             include: {
               statusUpdates: {
-                orderBy: { status_update_ord: 'asc' }
-              }
-            }
-          }
+                orderBy: { status_update_ord: "asc" },
+              },
+            },
+          },
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         skip,
-        take: limit
+        take: limit,
       }),
       prisma.customer.count({
-        where: { isPublished: true }
-      })
+        where: { isPublished: true },
+      }),
     ]);
 
     res.json({
@@ -34,8 +34,8 @@ const getCustomers = async (req, res) => {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -51,15 +51,15 @@ const getCustomer = async (req, res) => {
         shipments: {
           include: {
             statusUpdates: {
-              orderBy: { status_update_ord: 'asc' }
-            }
-          }
-        }
-      }
+              orderBy: { status_update_ord: "asc" },
+            },
+          },
+        },
+      },
     });
 
     if (!customer) {
-      return res.status(404).json({ error: 'Customer not found' });
+      return res.status(404).json({ error: "Customer not found" });
     }
 
     res.json(customer);
@@ -75,16 +75,16 @@ const createCustomer = async (req, res) => {
 
     // Validate required fields
     if (!name || !address || !phone) {
-      return res.status(400).json({ 
-        error: 'Name, address, and phone are required fields' 
+      return res.status(400).json({
+        error: "Name, address, and phone are required fields",
       });
     }
 
     // Validate phone format (basic validation)
     const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-    if (!phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''))) {
-      return res.status(400).json({ 
-        error: 'Please provide a valid phone number' 
+    if (!phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ""))) {
+      return res.status(400).json({
+        error: "Please provide a valid phone number",
       });
     }
 
@@ -94,23 +94,25 @@ const createCustomer = async (req, res) => {
         address,
         phone,
         isPublished: isPublished !== undefined ? isPublished : true,
-        publishedAt: publishedAt || new Date()
+        publishedAt: publishedAt || new Date(),
       },
       include: {
         shipments: {
           include: {
             statusUpdates: {
-              orderBy: { status_update_ord: 'asc' }
-            }
-          }
-        }
-      }
+              orderBy: { status_update_ord: "asc" },
+            },
+          },
+        },
+      },
     });
 
     res.status(201).json(customer);
   } catch (error) {
-    if (error.code === 'P2002') {
-      return res.status(400).json({ error: 'Customer with this phone already exists' });
+    if (error.code === "P2002") {
+      return res
+        .status(400)
+        .json({ error: "Customer with this phone already exists" });
     }
     res.status(400).json({ error: error.message });
   }
@@ -124,19 +126,19 @@ const updateCustomer = async (req, res) => {
 
     // Check if customer exists
     const existingCustomer = await prisma.customer.findUnique({
-      where: { id: customerId }
+      where: { id: customerId },
     });
 
     if (!existingCustomer) {
-      return res.status(404).json({ error: 'Customer not found' });
+      return res.status(404).json({ error: "Customer not found" });
     }
 
     // Validate phone if provided
     if (phone) {
       const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-      if (!phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''))) {
-        return res.status(400).json({ 
-          error: 'Please provide a valid phone number' 
+      if (!phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ""))) {
+        return res.status(400).json({
+          error: "Please provide a valid phone number",
         });
       }
     }
@@ -148,26 +150,34 @@ const updateCustomer = async (req, res) => {
         ...(address && { address }),
         ...(phone && { phone }),
         ...(isPublished !== undefined && { isPublished }),
-        ...(publishedAt && { publishedAt })
+        ...(publishedAt && { publishedAt }),
       },
       include: {
         shipments: {
           include: {
             statusUpdates: {
-              orderBy: { status_update_ord: 'asc' }
-            }
-          }
-        }
-      }
+              orderBy: { status_update_ord: "asc" },
+            },
+          },
+        },
+      },
     });
 
-    res.json(customer);
+    // res.json(customer);
+
+    // 👉 Send success message + full updated data
+    return res.status(200).json({
+      message: "Customer updated successfully",
+      updatedCustomer: customer,
+    });
   } catch (error) {
-    if (error.code === 'P2025') {
-      return res.status(404).json({ error: 'Customer not found' });
+    if (error.code === "P2025") {
+      return res.status(404).json({ error: "Customer not found" });
     }
-    if (error.code === 'P2002') {
-      return res.status(400).json({ error: 'Customer with this phone already exists' });
+    if (error.code === "P2002") {
+      return res
+        .status(400)
+        .json({ error: "Customer with this phone already exists" });
     }
     res.status(400).json({ error: error.message });
   }
@@ -180,32 +190,33 @@ const deleteCustomer = async (req, res) => {
 
     // Check if customer exists
     const existingCustomer = await prisma.customer.findUnique({
-      where: { id: customerId }
+      where: { id: customerId },
     });
 
     if (!existingCustomer) {
-      return res.status(404).json({ error: 'Customer not found' });
+      return res.status(404).json({ error: "Customer not found" });
     }
 
     // Check if customer has associated shipments
     const shipmentCount = await prisma.shipment.count({
-      where: { customerId }
+      where: { customerId },
     });
 
     if (shipmentCount > 0) {
-      return res.status(400).json({ 
-        error: 'Cannot delete customer with associated shipments. Delete shipments first.' 
+      return res.status(400).json({
+        error:
+          "Cannot delete customer with associated shipments. Delete shipments first.",
       });
     }
 
     await prisma.customer.delete({
-      where: { id: customerId }
+      where: { id: customerId },
     });
 
-    res.json({ message: 'Customer deleted successfully' });
+    res.json({ message: "Customer deleted successfully" });
   } catch (error) {
-    if (error.code === 'P2025') {
-      return res.status(404).json({ error: 'Customer not found' });
+    if (error.code === "P2025") {
+      return res.status(404).json({ error: "Customer not found" });
     }
     res.status(500).json({ error: error.message });
   }
@@ -215,29 +226,29 @@ const deleteCustomer = async (req, res) => {
 const searchCustomers = async (req, res) => {
   try {
     const { query } = req.query;
-    
+
     if (!query) {
-      return res.status(400).json({ error: 'Search query is required' });
+      return res.status(400).json({ error: "Search query is required" });
     }
 
     const customers = await prisma.customer.findMany({
       where: {
         OR: [
-          { name: { contains: query, mode: 'insensitive' } },
-          { phone: { contains: query } }
+          { name: { contains: query, mode: "insensitive" } },
+          { phone: { contains: query } },
         ],
-        isPublished: true
+        isPublished: true,
       },
       include: {
         shipments: {
           include: {
             statusUpdates: {
-              orderBy: { status_update_ord: 'asc' }
-            }
-          }
-        }
+              orderBy: { status_update_ord: "asc" },
+            },
+          },
+        },
       },
-      orderBy: { name: 'asc' }
+      orderBy: { name: "asc" },
     });
 
     res.json(customers);
@@ -252,5 +263,5 @@ module.exports = {
   createCustomer,
   updateCustomer,
   deleteCustomer,
-  searchCustomers
+  searchCustomers,
 };
