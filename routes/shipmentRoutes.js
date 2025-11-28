@@ -1,19 +1,32 @@
 const express = require("express");
 const router = express.Router();
 const shipmentController = require("../Controllers/shipmentController");
+const { authenticateToken } = require("../middleware/auth");
+
+// ==========================
+// TRACKING ----NO AUTH
+// ==========================
+router.get("/track/:trackingId", shipmentController.trackShipment);
+router.get("/by-tracking/:trackingId", shipmentController.trackShipment);
+
+// Apply authentication to all routes
+router.use(authenticateToken);
 
 // ==========================
 // SHIPMENTS CRUD
 // ==========================
 router.post("/", shipmentController.createShipment);
 router.put("/:id", shipmentController.updateShipment);
-router.delete("/:id", shipmentController.deleteShipment);   
+router.delete("/:id", shipmentController.deleteShipment);
 router.get("/", shipmentController.getShipments);
 
 // ==========================
 // STATUS UPDATES
 // ==========================
-router.post("/:trackingId/status", shipmentController.createStatusUpdateByTrackingId);
+router.post(
+  "/:trackingId/status",
+  shipmentController.createStatusUpdateByTrackingId
+);
 router.post("/status-updates", shipmentController.createStatusUpdate);
 router.delete("/status-updates/:id", shipmentController.deleteStatusUpdate);
 
@@ -21,13 +34,10 @@ router.delete("/status-updates/:id", shipmentController.deleteStatusUpdate);
 // IMPORT / BULK
 // ==========================
 router.post("/import", shipmentController.importShipments);
-router.put("/update-all-status-updates", shipmentController.updateAllStatusUpdates);
-
-// ==========================
-// TRACKING
-// ==========================
-router.get("/track/:trackingId", shipmentController.trackShipment);
-router.get("/by-tracking/:trackingId", shipmentController.trackShipment);
+router.put(
+  "/update-all-status-updates",
+  shipmentController.updateAllStatusUpdates
+);
 
 // ==========================
 // STATUS
@@ -41,7 +51,10 @@ router.get("/status-options", shipmentController.getStatusOptions);
 // DEBUG ROUTES (remove in production)
 // ==========================
 router.get("/debug/tracking-ids", shipmentController.debugTrackingIds);
-router.get("/debug/search-tracking/:pattern", shipmentController.searchTrackingId);
+router.get(
+  "/debug/search-tracking/:pattern",
+  shipmentController.searchTrackingId
+);
 
 // ==========================
 // DASHBOARD
