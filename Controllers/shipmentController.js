@@ -53,7 +53,10 @@ const getShipments = async (req, res) => {
       sNo: (page - 1) * limit + index + 1,
       id: shipment.id,
       orderId: shipment.orderId,
-      trackingId: shipment.trackingId,
+      // trackingId: shipment.trackingId,
+      trackingId: shipment.trackingId?.includes("-")
+        ? shipment.trackingId.split("-")[0]
+        : shipment.trackingId,
       customer: shipment.customer?.name || "N/A",
       address: shipment.customer?.address || "N/A",
       phone: shipment.customer?.phone || "N/A",
