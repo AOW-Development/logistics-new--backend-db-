@@ -26,7 +26,7 @@ async function main() {
   const filePath = path.join(
     __dirname,
     "json",
-    "export_custom-db_250613155155736.json"
+    "clean-output.json"
   );
   const rawData = fs.readFileSync(filePath, "utf-8");
   const data = JSON.parse(rawData).data;
