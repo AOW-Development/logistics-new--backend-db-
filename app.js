@@ -31,8 +31,8 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use("/api/shipments", shipmentRoutes);
-app.use("/api/customers", customerRoutes);
+app.use("/shipments", shipmentRoutes);
+app.use("/customers", customerRoutes);
 app.use("/admin", adminRoutes);
 
 // Health check endpoint
