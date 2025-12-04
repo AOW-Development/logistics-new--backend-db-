@@ -33,7 +33,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use("/api/shipments", shipmentRoutes);
 app.use("/api/customers", customerRoutes);
-app.use("/api/admin", adminRoutes);
+app.use("/admin", adminRoutes);
 
 // Health check endpoint
 app.get("/health", (req, res) => {
