@@ -31,12 +31,12 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use("/shipments", shipmentRoutes);
-app.use("/customers", customerRoutes);
-app.use("/admin", adminRoutes);
+app.use("/api/shipments", shipmentRoutes);
+app.use("api/customers", customerRoutes);
+app.use("api/admin", adminRoutes);
 
 // Health check endpoint
-app.get("/health", (req, res) => {
+app.get("api/health", (req, res) => {
   res
     .status(200)
     .json({ status: "Backend Jinda hai", timestamp: new Date().toISOString() });
