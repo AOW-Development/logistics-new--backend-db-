@@ -8,14 +8,14 @@ const prisma = new PrismaClient();
 
 async function main() {
   // 1. Ensure default admin exists
-  const hashedPassword = await bcrypt.hash("Admin@123", 12);
+  const hashedPassword = await bcrypt.hash("adminpassword", 12);
 
   await prisma.admin.upsert({
-    where: { username: "Admin" },
+    where: { username: "admin" },
     update: {},
     create: {
-      username: "Admin",
-      email: "admin@aow.co.in",
+      username: "admin",
+      email: "admin@example.com",
       password: hashedPassword,
       role: "admin",
     },
@@ -23,7 +23,11 @@ async function main() {
   console.log("✅ Default Admin ensured");
 
   // 2. Load Strapi export JSON
-  const filePath = path.join(__dirname, "json", "clean-output.json");
+  const filePath = path.join(
+    __dirname,
+    "json",
+    "clean-output.json"
+  );
   const rawData = fs.readFileSync(filePath, "utf-8");
   const data = JSON.parse(rawData).data;
 
