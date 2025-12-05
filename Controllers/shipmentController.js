@@ -143,66 +143,7 @@ const getShipmentDetails = async (req, res) => {
 
 // Track shipment (public endpoint)
 // Track shipment (public endpoint)
-// Track shipment (public endpoint) old
-
-// const trackShipment = async (req, res) => {
-//   try {
-//     const trackingId = req.params.trackingId.trim();
-
-//     console.log("Tracking request for:", trackingId);
-
-//     const shipment = await prisma.shipment.findFirst({
-//       where: {
-//         OR: [
-//           { trackingId: { equals: trackingId } }, // exact match
-//           { trackingId: { contains: trackingId } }, // partial match
-//           { trackingId: { contains: trackingId.replace(/\D/g, "") } }, // digits only
-//         ],
-//         isPublished: true,
-//       },
-//       include: {
-//         customer: true,
-//         statusUpdates: {
-//           orderBy: { status_update_ord: "desc" },
-//         },
-//       },
-//     });
-
-//     if (!shipment) {
-//       return res.status(404).json({ error: "Shipment not found" });
-//     }
-
-//     const trackingInfo = {
-//       id: shipment.id,
-//       orderId: shipment.orderId,
-//       trackingId: shipment.trackingId,
-//       status: shipment.order_status,
-//       estimatedDelivery: shipment.estimatedDelivery,
-//       customer: shipment.customer
-//         ? {
-//             id: shipment.customer.id,
-//             name: shipment.customer.name,
-//             address: shipment.customer.address,
-//             phone: shipment.customer.phone,
-//           }
-//         : null,
-//       statusUpdates: shipment.statusUpdates.map((update) => ({
-//         id: update.id,
-//         status: update.order_status,
-//         details: update.details,
-//         location: update.location,
-//         timestamp: update.timestamp,
-//         createdAt: update.timestamp,
-//       })),
-//     };
-
-//     res.json(trackingInfo);
-//   } catch (error) {
-//     console.error("Error in trackShipment:", error);
-//     res.status(500).json({ error: error.message });
-//   }
-// };
-// new
+// Track shipment (public endpoint)
 const trackShipment = async (req, res) => {
   try {
     const trackingId = req.params.trackingId.trim();
@@ -211,7 +152,11 @@ const trackShipment = async (req, res) => {
 
     const shipment = await prisma.shipment.findFirst({
       where: {
-        trackingId: { equals: trackingId }, // Only exact match
+        OR: [
+          { trackingId: { equals: trackingId } }, // exact match
+          { trackingId: { contains: trackingId } }, // partial match
+          { trackingId: { contains: trackingId.replace(/\D/g, "") } }, // digits only
+        ],
         isPublished: true,
       },
       include: {
@@ -223,7 +168,7 @@ const trackShipment = async (req, res) => {
     });
 
     if (!shipment) {
-      return res.status(404).json({ error: "No data found" });
+      return res.status(404).json({ error: "Shipment not found" });
     }
 
     const trackingInfo = {
@@ -256,6 +201,7 @@ const trackShipment = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 // Add these to your shipmentController.js
 
 // Debug endpoint to list all tracking IDs
